@@ -27,12 +27,18 @@
 
 ## 📂 Project Structure
 
-SkyGallery/
+SkyGallery
+
 │
+
 ├── index.html
+
 ├── style.css
+
 ├── script.js
+
 └── README.md
+
 
 ---
 
