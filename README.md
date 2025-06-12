@@ -29,14 +29,10 @@
 
 SkyGallery/
 │
-├── index.html # Main HTML page
-├── style.css # Styling and layout
-├── script.js # Theme toggle + scroll behavior
-└── README.md # You’re reading it
-
-yaml
-Copy
-Edit
+├── index.html
+├── style.css
+├── script.js
+└── README.md
 
 ---
 
