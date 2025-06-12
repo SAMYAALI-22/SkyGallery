@@ -25,16 +25,6 @@
 
 ---
 
-## 📸 Screenshots
-
-![Hero Section](https://source.unsplash.com/1000x500/?sky,stars)
-*Welcome section with galaxy background*
-
-![Gallery](https://source.unsplash.com/1000x500/?gallery,webdesign)
-*Interactive image cards with hover effects*
-
----
-
 ## 📂 Project Structure
 
 SkyGallery/
