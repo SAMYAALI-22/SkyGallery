@@ -1,26 +1,109 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-  color: white;
-  margin: 0;
-  padding: 20px;
-  text-align: center;
+  background: #0f1116;
+  color: #f0f0f0;
+  line-height: 1.6;
 }
 
 header {
-  padding: 30px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  margin-bottom: 40px;
-  backdrop-filter: blur(10px);
+  background: #12151c;
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px #00000050;
 }
 
-h1, h2 {
-  color: #00ffe0;
-  text-shadow: 0 0 10px #00ffe0;
+header h1 {
+  font-size: 1.8rem;
+  color: #6ab7ff;
 }
 
-section {
-  max-width: 600px;
-  margin: 40px auto;
+nav a {
+  margin-left: 1.2rem;
+  text-decoration: none;
+  color: #f0f0f0;
+  transition: color 0.3s;
+}
+
+nav a:hover {
+  color: #6ab7ff;
+}
+
+.hero {
+  background: url("https://source.unsplash.com/1600x500/?space,stars") center/cover no-repeat;
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.hero h2 {
+  font-size: 2.8rem;
+  color: #fff;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  margin-top: 1rem;
+}
+
+.gallery {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.gallery h2 {
+  margin-bottom: 2rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px #00000080;
+  transition: transform 0.3s;
+}
+
+.card img {
+  width: 100%;
+  display: block;
+  transition: transform 0.3s;
+}
+
+.card:hover img {
+  transform: scale(1.05);
+}
+
+.about, .contact {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+footer {
+  background: #1a1d24;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+footer .socials a {
+  margin: 0 0.5rem;
+  color: #6ab7ff;
+  text-decoration: none;
+}
+
+footer .socials a:hover {
+  text-decoration: underline;
 }

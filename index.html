@@ -3,35 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SkyGallery | Samya Ali</title>
+  <title>SkyGallery</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"/>
+  <script defer src="script.js"></script>
 </head>
 <body>
+  <!-- Header -->
   <header>
-    <h1><span id="typed"></span></h1>
-    <p>Cloud Developer | Full Stack Learner | AI Enthusiast</p>
+    <h1>🌌 SkyGallery</h1>
+    <nav>
+      <a href="#gallery">Gallery</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
   </header>
 
-  <section data-aos="fade-up">
-    <h2>About Me</h2>
-    <p>Hi, I’m Samya — building things in the cloud ☁️ with heart and code!</p>
+  <!-- Hero Section -->
+  <section class="hero">
+    <h2>Welcome to SkyGallery</h2>
+    <p>Explore the beauty of digital creation.</p>
   </section>
 
-  <section data-aos="fade-left">
-    <h2>Projects</h2>
-      <p>🎮 BU Gamers</p>
-      <p>🌦️ Weather SnapTracker</p>
-      <p>🛡️ Java Auth Portal</p>
+  <!-- Gallery -->
+  <section id="gallery" class="gallery">
+    <h2>Our Collection</h2>
+    <div class="grid">
+      <div class="card"><img src="https://source.unsplash.com/400x300/?nature" alt="Gallery Image"/></div>
+      <div class="card"><img src="https://source.unsplash.com/400x300/?sky" alt="Gallery Image"/></div>
+      <div class="card"><img src="https://source.unsplash.com/400x300/?technology" alt="Gallery Image"/></div>
+    </div>
   </section>
 
-  <section data-aos="fade-right">
+  <!-- About -->
+  <section id="about" class="about">
+    <h2>About SkyGallery</h2>
+    <p>SkyGallery is a digital space that curates beautiful and meaningful content, powered by design, creativity, and innovation.</p>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="contact">
     <h2>Contact</h2>
-    <p>Email: <a href="mailto:samyaali648@gmail.com">samyaali648@gmail.com</a></p>
+    <p>Reach out via <a href="mailto:your@email.com">email</a> or connect below.</p>
   </section>
 
-  <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-  <script src="script.js"></script>
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 SkyGallery | Built by Samya Ali</p>
+    <div class="socials">
+      <a href="https://github.com/SAMYAALI-22" target="_blank">GitHub</a>
+      <a href="#" target="_blank">LinkedIn</a>
+    </div>
+  </footer>
 </body>
 </html>

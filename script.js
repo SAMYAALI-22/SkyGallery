@@ -1,8 +1,9 @@
-AOS.init();
-
-var typed = new Typed('#typed', {
-  strings: ["Hi, I’m Samya Ali 👋", "Cloud Developer ☁️", "AI Explorer 🔍"],
-  typeSpeed: 60,
-  backSpeed: 30,
-  loop: true
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelector(this.getAttribute('href')).scrollIntoView({
+      behavior: 'smooth'
+    });
+  });
 });
