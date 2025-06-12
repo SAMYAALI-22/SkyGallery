@@ -47,14 +47,8 @@ SkyGallery
 Want to collaborate or connect?
 
 - **GitHub**: [github.com/SAMYAALI-22](https://github.com/SAMYAALI-22)
-- **LinkedIn**: [linkedin.com/in/samyaali](https://linkedin.com/in/samyaali)
-- **Email**: ali.samya2023@gmail.com
-
----
-
-## 📝 License
-
-This project is licensed under the [MIT License](LICENSE).
+- **LinkedIn**: [linkedin.com/in/samyaali22](www.linkedin.com/in/samyaali22)
+- **Email**: samyaali648@gmail.com
 
 ---
 
