@@ -7,7 +7,15 @@
   <link rel="stylesheet" href="style.css" />
   <script defer src="script.js"></script>
 </head>
-<body>
+<body class="dark">
+  <!-- Theme Toggle -->
+  <div class="theme-toggle">
+    <label class="switch">
+      <input type="checkbox" id="themeSwitch">
+      <span class="slider round"></span>
+    </label>
+  </div>
+
   <!-- Header -->
   <header>
     <h1>🌌 SkyGallery</h1>
@@ -28,9 +36,10 @@
   <section id="gallery" class="gallery">
     <h2>Our Collection</h2>
     <div class="grid">
-      <div class="card"><img src="https://source.unsplash.com/400x300/?nature" alt="Gallery Image"/></div>
-      <div class="card"><img src="https://source.unsplash.com/400x300/?sky" alt="Gallery Image"/></div>
-      <div class="card"><img src="https://source.unsplash.com/400x300/?technology" alt="Gallery Image"/></div>
+      <div class="card"><img src="https://source.unsplash.com/400x300/?nature" alt="Nature"/></div>
+      <div class="card"><img src="https://source.unsplash.com/400x300/?sky" alt="Sky"/></div>
+      <div class="card"><img src="https://source.unsplash.com/400x300/?technology" alt="Tech"/></div>
+      <div class="card"><img src="https://source.unsplash.com/400x300/?art" alt="Art"/></div>
     </div>
   </section>
 
@@ -43,7 +52,8 @@
   <!-- Contact -->
   <section id="contact" class="contact">
     <h2>Contact</h2>
-    <p>Reach out via <a href="mailto:your@email.com">email</a> or connect below.</p>
+    <p>Fill the form below to reach out:</p>
+    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSf-xyz/viewform?embedded=true" width="100%" height="400" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
   </section>
 
   <!-- Footer -->
