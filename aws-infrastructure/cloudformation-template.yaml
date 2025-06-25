@@ -1,0 +1,305 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Serverless Contact Form Infrastructure - Lambda, API Gateway, and DynamoDB'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: 'serverless-contact-form'
+    Description: 'Name of the project for resource naming'
+  
+  Environment:
+    Type: String
+    Default: 'prod'
+    AllowedValues: ['dev', 'staging', 'prod']
+    Description: 'Environment name'
+
+Resources:
+  # DynamoDB Table for storing contact form submissions
+  ContactFormTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-${Environment}-submissions'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: TimestampIndex
+          KeySchema:
+            - AttributeName: timestamp
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: EmailIndex
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+  # IAM Role for Lambda function
+  ContactFormLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-${Environment}-lambda-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource: 
+                  - !GetAtt ContactFormTable.Arn
+                  - !Sub '${ContactFormTable.Arn}/index/*'
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Lambda function for processing contact form submissions
+  ContactFormLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-${Environment}-handler'
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt ContactFormLambdaRole.Arn
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref ContactFormTable
+          ENVIRONMENT: !Ref Environment
+      Code:
+        ZipFile: |
+          const AWS = require('aws-sdk');
+          const dynamodb = new AWS.DynamoDB.DocumentClient();
+
+          const corsHeaders = {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Headers': 'Content-Type',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS'
+          };
+
+          exports.handler = async (event) => {
+              console.log('Event:', JSON.stringify(event, null, 2));
+              
+              if (event.httpMethod === 'OPTIONS') {
+                  return {
+                      statusCode: 200,
+                      headers: corsHeaders,
+                      body: JSON.stringify({ message: 'CORS preflight successful' })
+                  };
+              }
+              
+              if (event.httpMethod !== 'POST') {
+                  return {
+                      statusCode: 405,
+                      headers: corsHeaders,
+                      body: JSON.stringify({ error: 'Method not allowed' })
+                  };
+              }
+              
+              try {
+                  const body = JSON.parse(event.body);
+                  
+                  if (!body.name || !body.email || !body.message) {
+                      return {
+                          statusCode: 400,
+                          headers: corsHeaders,
+                          body: JSON.stringify({ 
+                              error: 'Missing required fields: name, email, and message are required' 
+                          })
+                      };
+                  }
+                  
+                  const submissionId = `contact_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                  const timestamp = new Date().toISOString();
+                  
+                  const item = {
+                      id: submissionId,
+                      name: body.name.trim(),
+                      email: body.email.trim().toLowerCase(),
+                      subject: body.subject ? body.subject.trim() : 'No subject',
+                      message: body.message.trim(),
+                      timestamp: timestamp,
+                      createdAt: Math.floor(Date.now() / 1000),
+                      status: 'new',
+                      source: 'contact-form'
+                  };
+                  
+                  const params = {
+                      TableName: process.env.DYNAMODB_TABLE_NAME,
+                      Item: item
+                  };
+                  
+                  await dynamodb.put(params).promise();
+                  
+                  return {
+                      statusCode: 200,
+                      headers: corsHeaders,
+                      body: JSON.stringify({
+                          message: 'Contact form submitted successfully',
+                          submissionId: submissionId,
+                          timestamp: timestamp
+                      })
+                  };
+                  
+              } catch (error) {
+                  console.error('Error:', error);
+                  return {
+                      statusCode: 500,
+                      headers: corsHeaders,
+                      body: JSON.stringify({ 
+                          error: 'Internal server error'
+                      })
+                  };
+              }
+          };
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+  # API Gateway REST API
+  ContactFormApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub '${ProjectName}-${Environment}-api'
+      Description: 'API for serverless contact form'
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+  # API Gateway Resource
+  ContactResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ContactFormApi
+      ParentId: !GetAtt ContactFormApi.RootResourceId
+      PathPart: contact
+
+  # API Gateway Method (POST)
+  ContactPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ContactFormApi
+      ResourceId: !Ref ContactResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ContactFormLambda.Arn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+          ResponseHeaders:
+            Access-Control-Allow-Origin: true
+        - StatusCode: 400
+        - StatusCode: 500
+
+  # API Gateway Method (OPTIONS for CORS)
+  ContactOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ContactFormApi
+      ResourceId: !Ref ContactResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseHeaders:
+              Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ''
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+      MethodResponses:
+        - StatusCode: 200
+          ResponseHeaders:
+            Access-Control-Allow-Headers: true
+            Access-Control-Allow-Methods: true
+            Access-Control-Allow-Origin: true
+
+  # Lambda permission for API Gateway
+  ApiGatewayLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ContactFormLambda
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:apigateway:${AWS::Region}::/restapis/${ContactFormApi}/stages/*/POST/contact'
+
+  # API Gateway Deployment
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - ContactPostMethod
+      - ContactOptionsMethod
+    Properties:
+      RestApiId: !Ref ContactFormApi
+      StageName: !Ref Environment
+
+Outputs:
+  ApiEndpoint:
+    Description: 'API Gateway endpoint URL for contact form'
+    Value: !Sub 'https://${ContactFormApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/contact'
+    Export:
+      Name: !Sub '${ProjectName}-${Environment}-api-endpoint'
+
+  DynamoDBTableName:
+    Description: 'DynamoDB table name for contact form submissions'
+    Value: !Ref ContactFormTable
+    Export:
+      Name: !Sub '${ProjectName}-${Environment}-table-name'
+
+  LambdaFunctionName:
+    Description: 'Lambda function name for contact form handler'
+    Value: !Ref ContactFormLambda
+    Export:
+      Name: !Sub '${ProjectName}-${Environment}-lambda-name'
+
+  LambdaFunctionArn:
+    Description: 'Lambda function ARN'
+    Value: !GetAtt ContactFormLambda.Arn
+    Export:
+      Name: !Sub '${ProjectName}-${Environment}-lambda-arn'
